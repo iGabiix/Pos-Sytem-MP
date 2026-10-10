@@ -1,0 +1,24 @@
+<?= $this->extend('layout') ?>
+<?= $this->section('content') ?>
+<div class="page-heading"><div><a class="back-link" href="<?= site_url($resource) ?>">← Back to <?= esc($resource) ?></a><h1><?= esc($title) ?></h1><p><?= isset($row['id']) ? 'Keep your store information up to date.' : 'A new addition to your campus store.' ?></p></div></div>
+<form method="post" enctype="multipart/form-data" action="<?= site_url($resource . (isset($row['id']) ? '/' . $row['id'] : '')) ?>" class="edit-form" data-save-form>
+<?= csrf_field() ?>
+<?php if ($resource === 'products' && isset($row['id'])): ?><input type="hidden" name="stock_before" value="<?= esc($row['stock_quantity'], 'attr') ?>"><?php endif ?>
+<div class="panel form-panel"><div class="panel-heading"><div><h2><?= $resource === 'products' ? 'Product details' : 'Personal details' ?></h2><p>Fields marked with * are required.</p></div><?= icon($resource === 'products' ? 'box' : 'staff') ?></div><div class="form-body">
+<?php if ($resource === 'products'): ?>
+<div class="field"><label for="name">Product name *</label><input id="name" name="name" required maxlength="100" value="<?= form_value('name', $row) ?>" placeholder="e.g. Tamaraw Classic Tee"></div>
+<div class="form-columns"><div class="field"><label for="price">Price (PHP) *</label><div class="input-prefix"><span>₱</span><input id="price" name="price" type="number" min="0.01" max="99999999.99" step="0.01" required value="<?= form_value('price', $row) ?>" placeholder="0.00"></div></div><div class="field"><label for="stock_quantity">Stock quantity *</label><input id="stock_quantity" name="stock_quantity" type="number" min="0" max="2147483647" step="1" required value="<?= form_value('stock_quantity', $row, '0') ?>"></div></div>
+<?php else: ?>
+<div class="field"><label for="full_name">Full name *</label><input id="full_name" name="full_name" required maxlength="100" value="<?= form_value('full_name', $row) ?>" placeholder="Enter full name"></div>
+<?php if ($resource === 'customers'): ?><div class="field"><label for="email">Email address *</label><input id="email" name="email" type="email" required maxlength="100" value="<?= form_value('email', $row) ?>" placeholder="name@example.com"></div><div class="field"><label for="phone">Phone number <span>optional</span></label><input id="phone" name="phone" type="tel" maxlength="20" value="<?= form_value('phone', $row) ?>" placeholder="+63 9XX XXX XXXX"></div>
+<?php else: ?><div class="field"><label for="username">Username *</label><input id="username" name="username" required minlength="3" maxlength="50" pattern="[A-Za-z0-9_-]+" autocomplete="off" value="<?= form_value('username', $row) ?>" placeholder="e.g. juan_delacruz"><small>Use letters, numbers, underscores, or hyphens.</small></div><div class="field"><label for="password"><?= isset($row['id']) ? 'New password' : 'Password *' ?></label><input id="password" name="password" type="password" autocomplete="new-password" minlength="12" maxlength="72" <?= isset($row['id']) ? '' : 'required' ?>><small>At least 12 characters. <?= isset($row['id']) ? 'Leave blank to keep the current password. Changing it signs out other sessions.' : 'Share the initial password with this staff member securely.' ?></small></div><?php endif ?>
+<?php endif ?>
+</div><div class="form-actions"><a class="button secondary" href="<?= site_url($resource) ?>">Cancel</a><button type="submit" class="button primary"><?= icon('check') ?> <?= isset($row['id']) ? 'Save changes' : 'Add ' . esc($singular) ?></button></div></div>
+<aside class="form-aside">
+<?php if ($resource !== 'customers'): $field = $resource === 'products' ? 'image' : 'avatar'; ?>
+<div class="panel upload-panel"><h2><?= $resource === 'products' ? 'Product image' : 'Staff avatar' ?></h2><p class="muted">A familiar face makes all the difference.</p><label class="upload-zone" for="<?= $field ?>"><img id="upload-preview" class="<?= $field === 'avatar' ? 'round' : '' ?>" src="<?= image_url($row[$field] ?? null) ?>" alt="Current <?= $field ?> preview"><?= icon('upload') ?><strong>Choose an image</strong><span>JPEG, PNG, or WebP · up to 2 MB</span><span>Maximum 4000 × 4000 pixels</span></label><input id="<?= $field ?>" name="<?= $field ?>" type="file" accept="image/jpeg,image/png,image/webp" data-image-input><p class="upload-help">Images are resized<?= $field === 'avatar' ? ' and cropped to a square' : '' ?> for a consistent, display-ready finish.</p></div>
+<?php endif ?>
+<div class="help-card"><?= icon('leaf') ?><h3>A little care goes a long way.</h3><p><?= $resource === 'products' ? 'Accurate stock keeps checkout smooth. Products with 10 units or fewer appear in Stock watch.' : ($resource === 'staff' ? 'Every staff member can manage the store and record sales. Add only authorized store personnel.' : 'Choose a customer at checkout to connect them with their purchase history.') ?></p></div>
+</aside>
+</form>
+<?= $this->endSection() ?>
